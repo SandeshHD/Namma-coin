@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "express": "^4.21.0",
+    "level": "^8.0.1",
+    "level-sublevel": "^6.6.5",
+    "object-sizeof": "^2.6.5"
+  },
+  "type": "module"
+}
