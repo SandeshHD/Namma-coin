@@ -6,7 +6,7 @@ app.use(express.json())
 const node = new Node();
 
 app.get('/api/mempool',(req,res)=>{
-    res.send(node.getMemPool())
+    res.send(node.getMemPool().pool)
 })
 
 app.get('/api/utxo/:key',async (req,res)=>{
@@ -21,8 +21,9 @@ app.get('/api/balance/:key',async (req,res)=>{
     res.send({balance:response})
 })
 
-app.post('/api/transactions',(req,res)=>{
-  if(node.addToMempool(req.body)){
+app.post('/api/transactions',async (req,res)=>{
+  const response = await node.addToMempool(req.body);
+  if(response){
     return res.send("Transaction Sent Successfully.")
   }
   res.status(400).send("Invalid transaction")
@@ -31,14 +32,43 @@ app.post('/api/transactions',(req,res)=>{
 app.post('/api/transfer',async (req,res)=>{
   const {transaction,wallet} = req.body;
   const response = await node.sendMoney(transaction,wallet);
-  if(response)
-    return res.send(response)
+  if(response){
+    const status = await node.addToMempool(response)
+    if(status){
+      return res.send(response)
+    }
+  }
   return res.status(400).send("Transaction Failed!")
 })
 
-app.post('/api/mining',(req,res)=>{
-    if(node.addBlock(req.body)){
-      return res.send(node.blockChain)
+app.get('/api/block/:block',async (req,res)=>{
+  const hash = req.params.block;
+  if(hash){
+    const block = await node.getBlock(hash);
+    if(block){
+      return res.send(block)
+    }
+    return res.status(400).send("Block Not found!")
+  }else{
+    res.status(400).send("Block Hash is required!")
+  }
+})
+
+app.get('/api/blocks',(req,res)=>{
+  const response = node.blockChain.getChain();
+  res.send(response)
+})
+
+app.get('/api/wallets',(req,res)=>{
+  const response = node.getAllPublicKeys();
+  res.send(response)
+})
+
+
+app.post('/api/mining',async (req,res)=>{
+  const mineStatus = await node.mineAndAddBlock(req.body);
+    if(mineStatus){
+      return res.send("Block added successfully")
     }
     res.status(400).send("Invalid transaction")
 })

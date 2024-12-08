@@ -37,6 +37,20 @@ export class Wallet{
       }
     }
 
+    getAllPublicKeys(){
+      const wallets = []
+        fs.readdirSync('node/wallets').forEach(file=>{
+            try {
+                const data = fs.readFileSync(`node/wallets/${file}`);
+                wallets.push(JSON.parse(data.toString())['publicKey']);
+            } catch (err) {
+                console.error(err)
+                return [];
+            }
+        })
+        return wallets;
+    }
+
     addWallet(){
       const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
           modulusLength: 2048,
@@ -164,7 +178,7 @@ export class Wallet{
     //   }
     // ]
     try{
-      const response = await fetch(`/api/utxo/${publicKey}`)
+      const response = await fetch(`http://localhost:3005/api/utxo/${publicKey}`)
       return response.json();
     }catch(err){
       console.log(err)
@@ -189,13 +203,16 @@ export class Wallet{
               "value": transaction.amount,
               "addr": transaction.address,
           },
-          {
-              "value":  change - (inputs.length*0.025),
-              "addr": publicKey
-          }
       ]
     }
     newTxn['size'] = sizeof(newTxn);
+    let fees = change - (newTxn['size']*0.00005);
+    if(fees>0){
+      newTxn['outputs'].push({
+        "value":  fees,
+        "addr": publicKey
+      })
+    }
     newTxn['hash'] = crypto.createHash('sha256').update(JSON.stringify(newTxn)).digest('hex');
     return newTxn;
   }

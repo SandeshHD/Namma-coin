@@ -33,10 +33,15 @@ export class BlockChain{
         return this.#chain[this.#chain.length-1]?.getHash();
     }
 
-    validateBlockChain(){
-        // go to each block and verify the chain
+    serializeBlockChain(){
+        return this.#chain.map(block=> block.toJSON())
     }
 
+    deserializeBlockChain(blockchain){
+        return blockchain.map((blockData) =>
+            Block.fromJSON(blockData)
+        );
+    }
 }
 
 // const chain = new BlockChain(2,500);

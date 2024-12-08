@@ -66,6 +66,30 @@ export class Block{
             difficulty: this.#difficulty
         }
     }
+
+    toJSON(){
+        return {
+            previousHash: this.#previousHash,
+            merkleRoot: this.#merkleRoot,
+            timeStamp: this.#timeStamp,
+            hash: this.#hash,
+            nonce: this.#nonce,
+            difficulty: this.#difficulty,
+            transactions: this.#transactions,
+        };
+    }
+
+    static fromJSON(json) {
+        const blockData = typeof json === "string" ? JSON.parse(json) : json;
+        const block = new Block(blockData.previousHash, blockData.transactions);
+    
+        block.setHash(blockData.hash);
+        block.setNonce(blockData.nonce);
+        block.#merkleRoot = blockData.merkleRoot;
+        block.#timeStamp = blockData.timeStamp;
+        block.#difficulty = blockData.difficulty;
+        return block;
+    }
 }
 
 

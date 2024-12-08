@@ -5,6 +5,7 @@ export class StorageEngine{
     constructor(){
         this.transactions = new Level('./db/transactions', { valueEncoding: 'json' });
         this.wallets = new Level('./db/wallets',{valueEncoding: 'json' });
+        this.blocks = new Level('./db/blocks',{valueEncoding: 'json' });
     }
 
     async addWallet(publicKey){
@@ -38,12 +39,13 @@ export class StorageEngine{
 
     async addUTXO(publicKey,transactionHash){
         const utxos = await this.getAllWalletTransactionHashes(publicKey);
-        return this.wallets.put(publicKey,[...utxos,transactionHash]);
+        const uniqueUTXOs = Array.from(new Set([...utxos,transactionHash]))
+        return this.wallets.put(publicKey,uniqueUTXOs);
     }
 
     async removeUTXO(publicKey,hash){
         const utxos = await this.getAllWalletTransactionHashes(publicKey);
-        const newUTXOs = utxos.filter(utxo=> utxo===hash);
+        const newUTXOs = utxos.filter(utxo=> utxo!==hash);
         return this.wallets.put(publicKey,newUTXOs); 
     }
 
@@ -66,6 +68,25 @@ export class StorageEngine{
 
     getTransaction(hash){
         return this.transactions.get(hash);
+    }
+
+    getBlock(blockHash){
+        return this.blocks.get(blockHash)
+    }
+
+    addBlock(block){
+        return this.blocks.put(block.hash,block)
+    }
+
+    async blockExists(hash){
+        try{
+            await this.getBlock(hash);
+            return true;
+        }catch(err){
+            console.log("error")
+            console.log(err)
+            return false;
+        }
     }
 
 }
