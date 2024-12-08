@@ -1,8 +1,7 @@
-# Node.js Application
+# Namma Coin - Cryptocurrency from scratch
 
 ## Overview
-This is a Node.js application that performs [briefly describe the functionality of your app, e.g., "a REST API for managing tasks"].
-
+"Namma Coin" is a cryptocurrency built from scratch using Node.js, adhering to the foundational principles described in the Bitcoin whitepaper. It implements decentralized, secure, and transparent blockchain technology, featuring features such as proof-of-work, transaction validation, and a UTXO-based system. Designed with scalability and efficiency in mind, Namma-coin is a step toward exploring the potential of blockchain in custom applications and ecosystems.
 ## Prerequisites
 
 Make sure you have the following installed on your system:
